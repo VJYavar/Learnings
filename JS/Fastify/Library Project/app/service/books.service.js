@@ -1,7 +1,5 @@
 "use strict";
 
-const fastify = require("fastify");
-
 const books = require("../models").Books;
 
 function createBook(attributes) {
@@ -28,41 +26,43 @@ function findBook(name) {
   });
 }
 
-function updateBook(attributes, reply) {
-  return findBook(attributes.name).then((books) => {
-    if (!books) {
-      return reply.status(404).send({
-        message: "Book Not Found",
-      });
+function updateBook(attributes) {
+  return findBook(attributes.name).then((book) => {
+    if (!book) {
+      throw new Error("Book Not Found");
     }
 
-    return books
+    return book
       .update({
-        name: attributes.name || books.name,
-        category: attributes.category || books.category,
-        author: attributes.author || books.author,
-        price: attributes.price || books.price,
-        notes: attributes.notes || books.notes,
+        name: attributes.name || book.name,
+        category: attributes.category || book.category,
+        author: attributes.author || book.author,
+        price: attributes.price || book.price,
+        notes: attributes.notes || book.notes,
         updatedAt: new Date(),
       })
-      .then((updatedBook) => reply.status(200).send(updatedBook))
-      .catch((error) => reply.status(400).send(error));
+      .then((updateBook) => {
+        return updateBook;
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
   });
 }
 
-function deleteBook(name, reply) {
-  return findBook(name).then((books) => {
-    if (!books) {
-      return reply.status(400).send({
-        message: "Book Not Found",
-      });
+function deleteBook(name) {
+  return findBook(name).then((book) => {
+    if (!book) {
+      throw new Error("Book Not Found");
     }
-    return books
+    return book
       .destroy()
-      .then(() =>
-        reply.status(200).send({ message: "Book deleted successfully." })
-      )
-      .catch((error) => reply.status(400).send(error));
+      .then(() => {
+        return "Book deleted successfully";
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
   });
 }
 

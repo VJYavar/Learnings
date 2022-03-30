@@ -13,7 +13,7 @@ function booksRoutes(fastify, options, done) {
   fastify.get("/books", booksControllers.list);
 
   //get one book
-  fastify.get("/books/:name", booksControllers.listOne);
+  fastify.get("/books/:name", booksControllers.find);
 
   //create book
   fastify.post("/books", booksControllers.create);

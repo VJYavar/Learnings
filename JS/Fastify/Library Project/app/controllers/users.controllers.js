@@ -16,7 +16,7 @@ function list(req, reply) {
 
 function login(req, reply) {
   usersService
-    .userLogin(req.body.email, req.body.password, reply)
+    .userLogin(req.body.email, req.body.password)
     .then((accessToken) => {
       reply.header("Authorization", `Bearer ${accessToken}`);
 

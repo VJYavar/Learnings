@@ -23,33 +23,27 @@ function findUser(userEmail) {
   });
 }
 
-function userLogin(email, password, reply) {
-  return findUser(email).then((users) => {
-    if (!users) {
-      return reply.status(400).send({
-        message: "User Not Found",
-      });
+function userLogin(email, password) {
+  return findUser(email).then((user) => {
+    if (!user) {
+      throw new Error("User Not Found");
     } else {
-      if (bcrypt.compareSync(password, users.encrypted_password)) {
+      if (bcrypt.compareSync(password, user.encrypted_password)) {
         const accessToken = generateAccessToken(email);
 
-        return users
+        return user
           .update({
             access_token: accessToken,
             updatedAt: new Date(),
           })
-          .then((users) => {
-            reply.header("Authorization", `Bearer ${accessToken}`);
-
-            return reply.status(201).send({
-              message: "User Logged in Successfully",
-            });
+          .then((loggedInUser) => {
+            return accessToken;
           })
-          .catch((error) => reply.status(400).send(error));
+          .catch((error) => {
+            throw new Error(error);
+          });
       } else {
-        return reply.status(402).send({
-          message: "Invalid Password",
-        });
+        throw new Error("Invalid Password");
       }
     }
   });

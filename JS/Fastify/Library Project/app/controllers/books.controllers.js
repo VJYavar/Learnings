@@ -1,8 +1,5 @@
 "use strict";
 
-const fastify = require("fastify");
-
-const books = require("../models").Books;
 const booksService = require("../service/books.service");
 
 function create(req, reply) {
@@ -25,6 +22,19 @@ function list(req, reply) {
     .then((books) => reply.status(200).send(books))
     .catch((error) => reply.status(400).send(error));
 }
+
+function find(req, reply) {
+  booksService.findBook(req.params.name).then((book) => {
+    if (!book) {
+      return reply.status(400).send({
+        message: "Book Not Found",
+      });
+    } else {
+      return reply.status(200).send(book);
+    }
+  });
+}
+
 function update(req, reply) {
   const { body } = req;
   const attributes = {
@@ -35,26 +45,18 @@ function update(req, reply) {
     notes: body.notes,
   };
   booksService
-    .updateBook(attributes, reply)
-    .then()
+    .updateBook(attributes)
+    .then((updatedBook) => reply.status(200).send(updatedBook))
     .catch((error) => reply.status(400).send(error));
 }
+
 function destroy(req, reply) {
   booksService
-    .deleteBook(req.params.name, reply)
-    .then()
+    .deleteBook(req.params.name)
+    .then((text) => {
+      reply.status(200).send({ message: `${text}` });
+    })
     .catch((error) => reply.status(400).send(error));
-}
-function listOne(req, reply) {
-  booksService.findBook(req.params.name).then((books) => {
-    if (!books) {
-      return reply.status(400).send({
-        message: "Book Not Found",
-      });
-    } else {
-      return reply.status(200).send(books);
-    }
-  });
 }
 
 module.exports = {
@@ -62,5 +64,5 @@ module.exports = {
   list,
   update,
   destroy,
-  listOne,
+  find,
 };
